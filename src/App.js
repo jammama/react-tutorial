@@ -1,17 +1,8 @@
 import {useState} from "react";
 
-export default function Board() {
-    const [squares, setSquares] = useState(Array(9).fill(null));
-    const [xIsNext, setXIsNext] = useState(true);
+function Board({ xIsNext, squares, onPlay }) {
 
-    const winner = calculateWinner(squares);
-    let status;
-    if (winner) {
-        status = "Winner: " + winner;
-    } else {
-        status = "Next player: " + (xIsNext ? "X" : "O");
-    }
-
+    // 승자 결정 TODO: squares 크기에 상관 없이 동작하도록 변경
     function calculateWinner(squares) {
         //한 변의 길이
         const lines = [
@@ -27,13 +18,23 @@ export default function Board() {
         for (let i = 0; i < lines.length; i++) {
             const [a, b, c] = lines[i];
             if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                console.log('??')
                 return squares[a];
             }
         }
         return null;
     }
+    const winner = calculateWinner(squares);
+    let status;
+    if (winner) {
+        status = "Winner: " + winner;
+    } else {
+        status = "Player Now: " + (xIsNext ? "O" : "X");
+    }
 
+    // 클릭시
     function handleClick(i) {
+
         const newSquares = squares.slice();
         if(!!newSquares[i] || calculateWinner(squares)){
             return;
@@ -43,8 +44,7 @@ export default function Board() {
         } else {
             newSquares[i] = "X";
         }
-        setXIsNext(!xIsNext);
-        setSquares(newSquares);
+        onPlay(newSquares);
     }
 
     // JSP 수정이 귀찮아서 렌더링 함수 추가
@@ -64,6 +64,41 @@ export default function Board() {
         {renderRow(4)}
         {renderRow(7)}
     </>);
+}
+export default function Game() {
+    const [xIsNext, setXIsNext] = useState(true);
+    const [history, setHistory] = useState([Array(9).fill(null)]);
+    const currentSquares = history[history.length - 1];
+
+    // 히스토리 저장 및 플레이어 변경
+    function handlePlay(nextSquares) {
+        setHistory([...history, nextSquares]);
+        setXIsNext(!xIsNext);
+    }
+    // 히스토리로 이동
+    function jumpTo(nextStep) {
+        setHistory(history.slice(0, nextStep + 1));
+        setXIsNext(nextStep % 2 === 0);
+    }
+    // move에 대한 렌더링
+    const moves = history.map((squares, step) => {
+        const description = step ? "Go to move #" + step : "Go to game start";
+        return (
+            <li key={step}>
+                <button onClick={() => jumpTo(step)}>{description}</button>
+            </li>
+        );
+    });
+    return (
+        <div className="game">
+            <div className="game-board">
+                <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+            </div>
+            <div className="game-info">
+                <ol>{moves}</ol>
+            </div>
+        </div>
+    );
 }
 
 function Square({value, onSquareClick}) {
