@@ -20,8 +20,9 @@ function calculateWinner(squares) {
     }
     return null;
 }
+
 //보드판
-function Board({ xIsNext, squares, onPlay }) {
+function Board({xIsNext, squares, onPlay}) {
     // 렌더링 시점에 승자 결정
     const winner = calculateWinner(squares);
     let status;
@@ -34,7 +35,7 @@ function Board({ xIsNext, squares, onPlay }) {
     // 클릭시 onPlay로 배열 전달
     function handleClick(i) {
         const newSquares = squares.slice();
-        if(!!newSquares[i] || calculateWinner(squares)){
+        if (!!newSquares[i] || calculateWinner(squares)) {
             return;
         }
         if (xIsNext) {
@@ -58,11 +59,13 @@ function Board({ xIsNext, squares, onPlay }) {
     };
     return (<>
         <div className="status">{status}</div>
+
         {renderRow(0)}
         {renderRow(3)}
         {renderRow(6)}
     </>);
 }
+
 export default function Game() {
     const [history, setHistory] = useState([Array(9).fill(null)]);
     const [currentMove, setCurrentMove] = useState(0);
@@ -72,20 +75,24 @@ export default function Game() {
     // 클릭시 플레이어 변경 및 히스토리 추가
     function handlePlay(nextSquares) {
         setHistory([...history, nextSquares]);
-        setCurrentMove(currentMove - 1);
+        setCurrentMove(history.length - 1 );
     }
+
     // 히스토리로 이동
     function jumpTo(nextStep) {
         setHistory(history.slice(0, nextStep + 1));
-        setCurrentMove(currentMove);
+        setCurrentMove(nextStep);
     }
+
     // move에 대한 렌더링
     const moves = history.map((squares, step) => {
-        const description = step ? "Go to move #" + step : "Go to game start";
         return (
-            <li key={step}>
-                <button onClick={() => jumpTo(step)}>{description}</button>
-            </li>
+            <>
+                <li key={step}>
+                    { step === currentMove + 1 ? <label>Now : {step}</label> :
+                        <button onClick={() => jumpTo(step)}>Go to move #{step} {currentMove}</button>}
+                </li>
+            </>
         );
     });
     return (
@@ -94,6 +101,7 @@ export default function Game() {
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
             </div>
             <div className="game-info">
+                <button onClick={() => jumpTo(0)}>restart</button>
                 <ol>{moves}</ol>
             </div>
         </div>
