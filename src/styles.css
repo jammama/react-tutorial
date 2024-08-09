@@ -3,72 +3,92 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
     margin: 20px;
     padding: 0;
+    background-color: #f7f7f7; /* 부드러운 배경 색상 */
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
 h1 {
-    margin-top: 0;
-    font-size: 22px;
+    font-size: 24px;
+    color: #ff6f61; /* 세련된 동화풍 색상 */
 }
 
 h2 {
-    margin-top: 0;
-    font-size: 20px;
+    font-size: 22px;
+    color: #ffb74d;
 }
 
 h3 {
-    margin-top: 0;
-    font-size: 18px;
+    font-size: 20px;
+    color: #81c784;
 }
 
 h4 {
-    margin-top: 0;
-    font-size: 16px;
+    font-size: 18px;
+    color: #64b5f6;
 }
 
 h5 {
-    margin-top: 0;
-    font-size: 14px;
+    font-size: 16px;
+    color: #9575cd;
 }
 
 h6 {
-    margin-top: 0;
-    font-size: 12px;
+    font-size: 14px;
+    color: #4db6ac;
 }
 
 code {
     font-size: 1.2em;
+    background-color: #e0f7fa;
+    border-radius: 4px;
+    padding: 2px 4px;
 }
 
 ul {
     padding-inline-start: 20px;
 }
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-    font-family: sans-serif;
-    margin: 20px;
-    padding: 0;
-}
-
 .square {
-    background: #fff;
-    border: 1px solid #999;
+    background: #ffffff; /* 게임 보드의 밝은 색상 */
+    border: 2px solid #c1e1c1; /* 세련된 동화풍 테두리 색상 */
+    border-radius: 1px; /* 둥근 모서리 */
     float: left;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
-    line-height: 34px;
-    height: 34px;
-    margin-right: -1px;
-    margin-top: -1px;
+    line-height: 40px;
+    width: 30px;
+    height: 30px;
+    margin: 0;
     padding: 0;
     text-align: center;
-    width: 34px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.square:hover {
+    background-color: #f0f8ff;
+}
+
+.square.X {
+    color: #ef5350; /* 세련된 동화풍 색상 */
+    font-size: 32px; /* 크기 조정 */
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.square.O {
+    color: #42a5f5; /* 세련된 동화풍 색상 */
+    font-size: 32px; /* 크기 조정 */
+    font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
 .board-row:after {
@@ -79,12 +99,55 @@ body {
 
 .status {
     margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
 }
+
 .game {
     display: flex;
     flex-direction: row;
 }
 
+.game-board {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .game-info {
     margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.game-info > ol {
+}
+
+/* 버튼 스타일 수정 */
+button {
+    background-color: #64b5f6; /* 세련된 동화풍 색상 */
+    border: 2px solid #42a5f5;
+    border-radius: 8px; /* 둥근 모서리 */
+    color: white;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 11px; /* 크기 조정 */
+    padding: 3px 10px; /* 크기 조정 */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 4px; /* 버튼 간격 */
+}
+button:disabled {
+    background-color: #0b5188;
+    border: 2px solid #4c5157;
+    transform: scale(1.05);
+}
+button:hover {
+    background-color: #42a5f5;
+    transform: scale(1.05);
+}
+
+button:active {
+    background-color: #1e88e5;
+    transform: scale(1);
 }

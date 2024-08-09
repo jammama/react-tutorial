@@ -1,54 +1,31 @@
 import {useState} from "react";
 
-// 승자 계산 TODO: squares 크기에 상관 없이 동작하도록 변경
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
+// 승자 계산
+function solution(n, arr) {
     return null;
 }
 
-//보드판
-function Board({xIsNext, squares, onPlay, row}) {
-    // 렌더링 시점에 승자 결정
-    const winner = calculateWinner(squares);
-    let status;
-    if (winner) {
-        status = "Winner: " + winner;
-    } else {
-        status = "Player Now: " + (xIsNext ? "O" : "X");
-    }
+function Square({value, onSquareClick}) {
+    return <button className={"square " + value} onClick={onSquareClick}>{value}</button>;
+}
 
-    // 클릭시 onPlay로 배열 전달
+//보드판
+function Board({xIsNext, squares, afterPlay, row}) {
+    // 클릭시 afterPlay로 배열 전달
     function handleClick(i) {
-        const newSquares = squares.slice();
-        if (!!newSquares[i] || calculateWinner(squares)) {
+        const [x, y] = [i % row, Math.floor(i / row)];
+        if (!!squares[x][y] || solution(row, squares)) {
+            console.log('exist')
             return;
         }
-        if (xIsNext) {
-            newSquares[i] = "O";
-        } else {
-            newSquares[i] = "X";
-        }
-        onPlay(newSquares);
+        console.log(squares, i % row, Math.floor(i / row))
+        squares[x][y] = xIsNext ? "O" : "X";
+        afterPlay([x, y]);
     }
 
     // square 렌더링
     const renderSquare = (i) => {
-        return <Square value={squares[i]} onSquareClick={() => handleClick(i)}/>;
+        return <Square value={squares[i % row][Math.floor(i / row)]} onSquareClick={() => handleClick(i)}/>;
     };
     // 한 줄 렌더링
     const renderRow = (row, i) =>
@@ -61,65 +38,86 @@ function Board({xIsNext, squares, onPlay, row}) {
         .map((r, i) => renderRow(row, i))
     return (
         <>
-            <div className="status">{status}</div>
-            {renderBox(row)}
+            <div className="board-box"> {renderBox(row)} </div>
         </>
     );
 }
 
 export default function Game() {
-    const [history, setHistory] = useState([Array(9).fill(null)]);
-    const [currentMove, setCurrentMove] = useState(-1);
+    const [row, setRow] = useState(5);
+    // history : [[x,y], [x,y]]
+    const [history, setHistory] = useState([]);
+    // squares : [["O", null, null, null, null], ["X","O",null,null...]...]
+    const [squares, setSquares] = useState(Array.from(Array(row), () => (new Array(row).fill(null))));
+    const currentMove = history.length;
     const xIsNext = currentMove % 2 === 0;
     const currentSquares = history[history.length - 1];
+    // 렌더링 시점에 승자 결정
+    const winner = solution(row, currentSquares)
+    let status;
+    if (winner) {
+        status = "Winner: " + winner;
+    } else {
+        status = "Player Now: " + (xIsNext ? "O" : "X");
+    }
 
-    // 클릭시 플레이어 변경 및 히스토리 추가
-    function handlePlay(nextSquares) {
-        setHistory([...history, nextSquares]);
-        setCurrentMove(history.length - 1);
+    // 히스토리 추가
+    function addHistory(position) {
+        setHistory([...history, position]);
     }
 
     // 히스토리로 이동
     function jumpTo(nextStep) {
-        setHistory(history.slice(0, nextStep + 1));
-        setCurrentMove(nextStep);
+        const removeHistory = history.slice(nextStep + 1, history.length)
+        removeHistory.forEach((p) => {
+            squares[p[0]][p[1]] = null;
+        })
+        squares[1][1] = null
+        setHistory(history.slice(0, nextStep));
+    }
+
+    // 게임 리셋
+    function restart() {
+        setHistory([]);
+        setSquares(Array.from(Array(row), () => (new Array(row).fill(null))));
+    }
+
+    // 보드판 크기 설정
+    const setBoardSize = (row) => {
+        setRow(row);
+        restart()
     }
 
     // move에 대한 렌더링
-    const button = (step) => step === currentMove + 1 ? <label>Now : {step}</label> :
+    const button = (step) => +step === +currentMove ? <label>Now : {step}</label> :
         <button onClick={() => jumpTo(step)}>Go to move #{step}</button>
     const moves = history.map((squares, step) => {
             return (
                 <>
-                    <li key={step}>
+                    <ol key={step}>
                         {button(step)}
-                    </li>
+                    </ol>
                 </>
             )
                 ;
         })
     ;
-    const [row, setRow] = useState(3);
+
     return (
         <>
             <div className="game">
                 <div className="game-board">
-                    <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} row={row}/>
+                    <Board xIsNext={xIsNext} squares={squares} afterPlay={addHistory} row={row}/>
                 </div>
                 <div className="game-info">
-                    <button onClick={() => jumpTo(0)}>restart</button>
+                    <div className="status">{status}</div>
+                    <button onClick={() => restart()}>restart</button>
                     <ol>{moves}</ol>
                 </div>
             </div>
-            <label for="row"> board size : {row} </label>
+            <label htmlFor="row"> board size : {row} </label>
             <br/>
-            <input id="row" value={row} onInput={(e) => setRow(e.target.value)} type="range" max="9"/>
+            <input id="row" value={row} onInput={(e) => setBoardSize(e.target.value)} type="range" min="5" max="22"/>
         </>
     );
-}
-
-function Square({
-                    value, onSquareClick
-                }) {
-    return <button className="square" onClick={onSquareClick}>{value}</button>;
 }
